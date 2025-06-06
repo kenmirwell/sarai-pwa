@@ -9,20 +9,22 @@ import InitialAssessment from './FrontEnd/InitialAssesment'
 import AllCourses from './FrontEnd/AllCourses'
 import MyLearning from './FrontEnd/MyLearning'
 import SingleCourse from './FrontEnd/SingleCourse'
+import AdminHeader from './GlobalComponents/AdminHeader'
 import './App.css'
 
 function App() {
 
   return (
     <div>
-      <Header/>
-      {/* <MainDashboard/> */}
+      {/* <Header/> */}
+      <AdminHeader/>
+      <MainDashboard/>
       {/* <SignUp/> */}
       {/* <Login/> */}
       {/* <InitialAssessment/> */}
       {/* <MyLearning/> */}
       {/* <AllCourses/> */}
-      <SingleCourse/>
+      {/* <SingleCourse/> */}
     </div>
   )
 }

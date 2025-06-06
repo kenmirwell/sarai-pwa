@@ -1,32 +1,34 @@
 import DataTable from 'react-data-table-component';
 import { columns } from './columns';
+import UsersData from './usersData';
 
 const DbContent = () => {
   return (
-      <div className={`w-[100%] pt-[20px] pl-[50px] pr-[20px] h-[100vh] overflow-y-scroll bg-[#376251]`}>
-					<div className="mb-[20px]">
-						<input 
-							className={`bg-[#f2f2f2] w-[100%] py-[10px] pr-[10px] pl-[20px] $text-[#ffffff]`} type="text" placeholder="Enter Keyword" 
-							// value={searchTerm}
-        			// 		onChange={(e) => setSearchTerm(e.target.value)}
-						/>
+		<div className="bg-[#f9f9f9] pt-[30px]">
+			<div className="max-w-[1200px] px-[50px] mx-auto">
+				<div className={`w-[100%] h-[100vh]`}>
+					<div className="pt-[30px]">
+						<div className="shadow-md rounded-md overflow-hidden">
+							<DataTable
+								highlightOnHover
+								columns={
+									columns({
+										// columnId: columnId,
+										// setColumnId: (e) => handleColumnAction(e)
+									})
+								}
+								data={UsersData}
+								striped //how to customized this
+								theme={null}
+								pagination
+								// onRowClicked={row => setColumnId(row.id)}
+								// 	conditionalRowStyles={conditionalRowStyles}
+							/>
+						</div>
 					</div>
-					<DataTable
-						highlightOnHover
-						columns={
-							columns({
-								// columnId: columnId,
-								// setColumnId: (e) => handleColumnAction(e)
-							})
-						}
-						data={[]}
-						striped //how to customized this
-						theme={null}
-						pagination
-						// onRowClicked={row => setColumnId(row.id)}
-  					// 	conditionalRowStyles={conditionalRowStyles}
-					/>
 				</div>
+			</div>
+		</div>
   )
 }
 

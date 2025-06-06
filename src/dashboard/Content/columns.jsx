@@ -9,7 +9,7 @@ export const columns = (props) => {
 		    reorder: true,
             selector: (row => {
                 // console.log("row title", row)
-                return row.email_address
+                return row.email
             }),
         },
         {
@@ -35,22 +35,6 @@ export const columns = (props) => {
             selector: (row => {
                 // console.log("row title", row)
                 return row.last_name
-            }),
-        },
-        {
-            name: 'Time In',
-            sortable: true,
-		    reorder: true,
-            selector: (row => {
-                return row.time_in ? new Date(row.time_in).toLocaleString() : ''
-            }),
-        },
-        {
-            name: 'Time Out',
-            sortable: true,
-		    reorder: true,
-            selector: (row => {
-                return row.time_out ? new Date(row.time_out).toLocaleString() : ''
             }),
         },
         // {
