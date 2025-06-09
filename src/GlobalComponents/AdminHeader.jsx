@@ -1,4 +1,4 @@
-const AdminHeader = () => {
+const AdminHeader = ({setAdminRoute}) => {
   return (
     <div className="bg-[#606060]">
       <div className="max-w-[1200px] px-[50px] mx-auto">
@@ -15,8 +15,8 @@ const AdminHeader = () => {
               />
             </div>
             <ul className="flex items-center gap-[20px]">
-              <li className="text-[#ffffff]"><a href="">My Learning</a></li>
-              <li className="text-[#ffffff]"><a href="">Courses</a></li>
+              <li onClick={() => setAdminRoute("users")} className="text-[#ffffff] cursor-pointer">Users</li>
+              <li onClick={() => setAdminRoute("courses")} className="text-[#ffffff] cursor-pointer">Courses</li>
             </ul>
             <div className="flex justify-center items-center w-[40px] h-[40px] rounded-full bg-[#00B238]">
               <span className="text-[#ffffff]">UR</span>

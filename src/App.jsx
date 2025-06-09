@@ -13,12 +13,21 @@ import AdminHeader from './GlobalComponents/AdminHeader'
 import './App.css'
 
 function App() {
+  const [adminRoute, setAdminRoute] = useState("users")
+
+  const handleRoute = (route) => {
+    setAdminRoute(route)
+  }
 
   return (
     <div>
       {/* <Header/> */}
-      <AdminHeader/>
-      <MainDashboard/>
+      <AdminHeader
+        setAdminRoute={(route) => handleRoute(route)}
+      />
+      <MainDashboard
+        adminRoute={adminRoute}
+      />
       {/* <SignUp/> */}
       {/* <Login/> */}
       {/* <InitialAssessment/> */}

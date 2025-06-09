@@ -4,9 +4,18 @@ import DataTable, { createTheme } from 'react-data-table-component';
 export const columns = (props) => {        
     const column = [
         {
+            name: 'ID',
+            sortable: true,
+		        reorder: true,
+            selector: (row => {
+                // console.log("row title", row)
+                return row.id
+            }),
+        },
+        {
             name: 'Email',
             sortable: true,
-		    reorder: true,
+		        reorder: true,
             selector: (row => {
                 // console.log("row title", row)
                 return row.email
@@ -15,7 +24,7 @@ export const columns = (props) => {
         {
             name: 'First Name',
             sortable: true,
-		    reorder: true,
+		        reorder: true,
             selector: (row => {
                 // console.log("row title", row)
                 return row.first_name
@@ -31,7 +40,7 @@ export const columns = (props) => {
         {
             name: 'Last Name',
             sortable: true,
-		    reorder: true,
+		        reorder: true,
             selector: (row => {
                 // console.log("row title", row)
                 return row.last_name
