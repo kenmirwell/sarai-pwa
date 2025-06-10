@@ -11,21 +11,17 @@ import MyLearning from './FrontEnd/MyLearning'
 import SingleCourse from './FrontEnd/SingleCourse'
 import AdminHeader from './GlobalComponents/AdminHeader'
 import { Routes, Route } from "react-router-dom";
+import FrontEnd from './FrontEnd/Frontend'
+import Dashboard from './dashboard/Dashboard'
 import './App.css'
 
 function App() {
-  const [adminRoute, setAdminRoute] = useState("users")
-
-  const handleRoute = (route) => {
-    setAdminRoute(route)
-  }
-
   return (
     <div>
       {/* <AdminHeader setAdminRoute={(route) => handleRoute(route)}/> */}
       <Routes>
-        <Route path="/" element={<AllCourses/>} />
-        <Route path="/project-admin" element={<MainDashboard adminRoute={adminRoute}/>} />
+        <Route path="/" element={<FrontEnd/>} />
+        <Route path="/project-admin" element={<Dashboard/>} />
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </div>
