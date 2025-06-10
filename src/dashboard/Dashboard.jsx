@@ -12,7 +12,7 @@ const Dashboard = () => {
     return (
         <div>
             <AdminHeader setAdminRoute={(route) => handleRoute(route)}/>
-            <Route path="/project-admin" element={<MainDashboard adminRoute={adminRoute}/>} />
+            <MainDashboard adminRoute={adminRoute}/>
         </div>
     )
 }
