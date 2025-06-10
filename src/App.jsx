@@ -19,8 +19,8 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<FrontEnd/>} />
-        <Route path="/project-admin" element={<Dashboard/>} />
+        <Route path="/*" element={<FrontEnd/>} />
+        <Route path="/project-admin/*" element={<Dashboard/>} />
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </div>
