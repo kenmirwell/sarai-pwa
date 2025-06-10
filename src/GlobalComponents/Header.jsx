@@ -8,8 +8,8 @@ const Header = () => {
           </div>
           <div className="flex gap-[20px] items-center">
             <ul className="flex items-center gap-[20px]">
-              <li><a href="">My Learning</a></li>
-              <li><a href="">Courses</a></li>
+              <Link to="/my-learning">My Learning</Link>
+              <Link to="/">Courses</Link>
             </ul>
             <div className="flex justify-center items-center w-[40px] h-[40px] rounded-full bg-[#00B238]">
               <span className="text-[#ffffff]">UR</span>
