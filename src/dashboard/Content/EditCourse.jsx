@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from "react"
-import { updateLessons, updateLesson, getCourseById, getLessonsbyCourse, deleteCourse } from "../../supabaseService"
+import { updateLessons, updateLesson, getCourseById, getLessonsbyCourse, deleteCourse, deleteLesson, createLessons } from "../../supabaseService"
 import EditLessonFields from "./EditLessonFields"
 
 const EditCourse = ({course, handleBack, triggerSave}) => {
   const [lessons, setLessons] = useState([])
   const [selectedCourse, setSelectedCourse] = useState([])
+  const [toDeleteLesson, setTodeleteLesson] = useState(null)
+  const [toAddLesson, setToaddLesson] = useState([])
   
 
   useEffect(() => {
@@ -16,6 +18,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
     ))
 
   }, [])
+
 
   //this is to update simply what in the input
   const handleChange = (e, id) => {
@@ -30,6 +33,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
     setLessons(newState);
   }
 
+
   const handleSubmit = () => {
 
     //find if there are empty fields then map items to put an error tiem and value which is true if there are tiems found
@@ -39,7 +43,8 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
         return {...i, error: true}
       })
 
-    if(emptyFields) {
+
+    if(emptyFields.length > 0) {
 
       //merge the lessons and the empty fields
       const merged = lessons.map(itemA => {
@@ -49,41 +54,82 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       
       setLessons( merged);
     } else {
+      // if(toDeleteLesson) {
+      //   deleteLesson(toDeleteLesson)
+      // }
+      const filterLessons = lessons.filter((item) => item.newItem )
+
+      const newLessons = filterLessons.map(i => ({
+        title: i.title,
+        description: i.description,
+        order: i.order,
+        course_id: i.course_id,
+      }))
+
+      // console.log("newlesson", newLessons)
+      createLessons(newLessons)
       updateLessons(lessons)
       triggerSave()
     }
   }
 
+
   const handleDeleteCourse = (id) => {
     deleteCourse(selectedCourse.id)
   }
 
-  const handleDeleteLesson = (id) => {
-    console.log(id)
+
+  const handleDeleteLesson = (id, order, courseID, index) => {
+    const newState = [
+      ...lessons.slice(0, index),
+      ...lessons.slice(index + 1).map(item => ({
+        ...item,
+        id: item.id + 1,
+        order: item.order + 1
+      }))
+    ]
+
+    setTodeleteLesson(id);
+    setLessons(newState);
   }
 
+
   const handleAddLesson = (id, order, courseID, index) => {
-  const newLesson = {
-    id: id + 1,
-    title: "",
-    description: "",
-    order: order + 1,
-    course_id: courseID
-  };
 
-  const newState = [
-    ...lessons.slice(0, index + 1),
-    newLesson,
-    ...lessons.slice(index + 1).map(item => ({
-      ...item,
-      id: item.id + 1,
-      order: item.order + 1
-    }))
-  ];
+    const generateID = (length = 16) => {
+      const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < length; i++) {
+          const randomIndex = Math.floor(Math.random() * charset.length);
+          token += charset[randomIndex];
+      }
+      return token;
+    }
 
-  setLessons(newState);
+    const newLesson = {
+      id: generateID(),
+      // created_at: new Date(),
+      title: "",
+      description: "",
+      order: order + 1,
+      course_id: courseID,
+      newItem: true
+    };
+
+    const newState = [
+      ...lessons.slice(0, index + 1),
+      newLesson,
+      ...lessons.slice(index + 1).map(item => ({
+        ...item,
+        // id: item.id + 1,
+        order: item.order + 1
+      }))
+    ];
+    
+    setLessons(newState);
 };
 
+console.log("lessons", lessons)
 
   return (
     <div className="py-[40px] px-[50px]">
@@ -150,7 +196,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
                   <EditLessonFields
                     data={i}
                     handleChange={(e, data) => handleChange(e, data)}
-                    handleDeleteLesson={(data) => handleDeleteLesson(data)}
+                    handleDeleteLesson={() => handleDeleteLesson(i.id, i.order, i.course_id, ndx)}
                   />
                   <div className="w-[100%] mt-[5px]">
                     <button onClick={() => handleAddLesson(i.id, i.order, i.course_id, ndx)} className="w-max px-[20px] py-[5px] bg-[#e2e2e2] hover:bg-[#d8fbe3] rounded-sm">Add Lesson</button>

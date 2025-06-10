@@ -7,6 +7,23 @@ export const createItem = async (data) => {
     return result
 }
 
+export const createLessons = async (data) => {
+
+    console.log("tocreatedata", data)
+
+    const results = [];
+
+    for (const item of data) {
+        const { data: result, error } = await supabase
+            .from('lessons')
+            .insert([item]);
+        if (error) throw error;
+        results.push(result);
+    }
+
+    return results;
+};
+
 // Read
 export const getUsers = async () => {
     const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
@@ -79,7 +96,7 @@ export const updateLesson = async (data) => {
 }
 
 export const updateLessons = async (data) => { // separate ID from update fields
-  
+  console.log(data)
   const { data: result, error } = await supabase
     .from('lessons')
     .update(data)
@@ -98,6 +115,13 @@ export const deleteItem = async (email) => {
 export const deleteCourse = async (data) => {
     console.log("to delete data", data)
     const { data: result, error } = await supabase.from('courses').delete().eq('email_address', email)
+    if (error) throw error
+    return result
+}
+
+export const deleteLesson = async (data) => {
+    console.log("to delete data", data)
+    const { data: result, error } = await supabase.from('lessons').delete().eq('id', email)
     if (error) throw error
     return result
 }
