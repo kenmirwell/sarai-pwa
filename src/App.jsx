@@ -22,7 +22,7 @@ function App() {
 
   return (
     <div>
-      <AdminHeader setAdminRoute={(route) => handleRoute(route)}/>
+      {/* <AdminHeader setAdminRoute={(route) => handleRoute(route)}/> */}
       <Routes>
         <Route path="/" element={<AllCourses/>} />
         <Route path="/project-admin" element={<MainDashboard adminRoute={adminRoute}/>} />
