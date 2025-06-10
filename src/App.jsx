@@ -18,7 +18,6 @@ import './App.css'
 function App() {
   return (
     <div>
-      {/* <AdminHeader setAdminRoute={(route) => handleRoute(route)}/> */}
       <Routes>
         <Route path="/" element={<FrontEnd/>} />
         <Route path="/project-admin" element={<Dashboard/>} />
