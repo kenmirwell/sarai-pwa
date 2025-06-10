@@ -10,6 +10,7 @@ import AllCourses from './FrontEnd/AllCourses'
 import MyLearning from './FrontEnd/MyLearning'
 import SingleCourse from './FrontEnd/SingleCourse'
 import AdminHeader from './GlobalComponents/AdminHeader'
+import { Routes, Route } from "react-router-dom";
 import './App.css'
 
 function App() {
@@ -21,20 +22,24 @@ function App() {
 
   return (
     <div>
-      {/* <Header/> */}
-      <AdminHeader
-        setAdminRoute={(route) => handleRoute(route)}
-      />
-      <MainDashboard
-        adminRoute={adminRoute}
-      />
-      {/* <SignUp/> */}
-      {/* <Login/> */}
-      {/* <InitialAssessment/> */}
-      {/* <MyLearning/> */}
-      {/* <AllCourses/> */}
-      {/* <SingleCourse/> */}
+      <AdminHeader setAdminRoute={(route) => handleRoute(route)}/>
+      <Routes>
+        <Route path="/" element={<AllCourses/>} />
+        <Route path="/project-admin" element={<MainDashboard adminRoute={adminRoute}/>} />
+        {/* <Route path="*" element={<NotFound />} /> */}
+      </Routes>
     </div>
+    // <div>
+      // {/* <Header/> */}
+      // // <AdminHeader setAdminRoute={(route) => handleRoute(route)}/>
+      // // <MainDashboard adminRoute={adminRoute}/>
+      // {/* <SignUp/> */}
+      // {/* <Login/> */}
+      // {/* <InitialAssessment/> */}
+      // {/* <MyLearning/> */}
+      // {/* <AllCourses/> */}
+      // {/* <SingleCourse/> */}
+    // </div>
   )
 }
 
