@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import DataTable from 'react-data-table-component';
 import { coursesColumns } from "./coursesColumn";
-import { getCourses, deleteCourse } from '../../supabaseService';
+import { getCourses } from '../../supabaseService';
 import EditCourse from "./EditCourse";
 
 const CoursesTable = ({triggerSave}) => {
