@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from "react"
-import { updateLessons, updateLesson, getCourseById, getLessonsbyCourse, deleteCourse, deleteLesson, createLessons } from "../../supabaseService"
+import { updateLessons, updateLesson, getCourseById, getLessonsbyCourse, deleteCourse, deleteLessons, createLessons } from "../../supabaseService"
 import EditLessonFields from "./EditLessonFields"
 
 const EditCourse = ({course, handleBack, triggerSave}) => {
   const [lessons, setLessons] = useState([])
   const [selectedCourse, setSelectedCourse] = useState([])
-  const [toDeleteLesson, setTodeleteLesson] = useState(null)
+  const [toDeleteLesson, setTodeleteLesson] = useState([])
   const [toAddLesson, setToaddLesson] = useState([])
   
 
@@ -57,18 +57,32 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       // if(toDeleteLesson) {
       //   deleteLesson(toDeleteLesson)
       // }
-      const filterLessons = lessons.filter((item) => item.newItem )
-
-      const newLessons = filterLessons.map(i => ({
+      const filterNewLessons = lessons.filter((item) => item.newItem )
+      const filterLessons = lessons.filter((item) => !item.newItem )
+      
+      const newLessons = filterNewLessons.map(i => ({
         title: i.title,
         description: i.description,
         order: i.order,
         course_id: i.course_id,
       }))
 
-      // console.log("newlesson", newLessons)
-      createLessons(newLessons)
-      updateLessons(lessons)
+      const fitleredLessons = filterLessons.map(i => ({
+        id: i.id,
+        title: i.title,
+        description: i.description,
+        order: i.order,
+        course_id: i.course_id,
+      }))
+      
+      if(toDeleteLesson) {
+        deleteLessons(toDeleteLesson)
+      }
+      
+      if(newLessons) {
+        createLessons(newLessons)
+      }
+      updateLessons(fitleredLessons)
       triggerSave()
     }
   }
@@ -84,12 +98,19 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       ...lessons.slice(0, index),
       ...lessons.slice(index + 1).map(item => ({
         ...item,
-        id: item.id + 1,
-        order: item.order + 1
+        order: item.order - 1
       }))
     ]
 
-    setTodeleteLesson(id);
+    const deletedLessonsIDs = lessons.filter(item => item.id === id).map(i => ({
+      id: i.id
+    }))
+
+    setTodeleteLesson((prev) => [
+      ...prev,
+      ...deletedLessonsIDs
+    ]);
+
     setLessons(newState);
   }
 
@@ -121,7 +142,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       newLesson,
       ...lessons.slice(index + 1).map(item => ({
         ...item,
-        // id: item.id + 1,
         order: item.order + 1
       }))
     ];

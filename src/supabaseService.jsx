@@ -1,3 +1,4 @@
+import { update } from "three/examples/jsm/libs/tween.module.js"
 import { supabase } from "./supabaseClient"
 
 // Create
@@ -85,7 +86,7 @@ export const getTimeins = async () => {
 export const updateLesson = async (data) => {
 
   const updateData = data[0]; // separate ID from update fields
-  
+
   const { data: result, error } = await supabase
     .from('lessons')
     .update(updateData)
@@ -95,15 +96,39 @@ export const updateLesson = async (data) => {
     return result
 }
 
-export const updateLessons = async (data) => { // separate ID from update fields
-  console.log(data)
-  const { data: result, error } = await supabase
-    .from('lessons')
-    .update(data)
-    .select()
-    if (error) throw error
-    return result
-}
+export const updateLessons = async (dataArray) => {
+  const results = [];
+  for (const data of dataArray) {
+    const { id, ...fieldsToUpdate } = data;
+    const { data: result, error } = await supabase
+      .from('lessons')
+      .update(fieldsToUpdate)
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    results.push(result[0]); // result is an array
+  }
+  return results;
+};
+
+
+export const deleteLessons = async (dataArray) => {
+  const results = [];
+  for (const data of dataArray) {
+    const { id, ...fieldsToUpdate } = data;
+    const { data: result, error } = await supabase
+      .from('lessons')
+      .delete(fieldsToUpdate)
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    results.push(result[0]); // result is an array
+  }
+  return results;
+};
+
 
 // Delete
 export const deleteItem = async (email) => {
