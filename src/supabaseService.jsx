@@ -160,3 +160,108 @@ export const deleteWithCharaters = async () => {
     if (error) throw error;
     return data;
 }
+
+export const storageUploads = async (dataArray) => {
+    
+    const results = [];
+
+    for (const { filePath, thumbnail } of dataArray) {
+        const { data: result, error } = await supabase
+            .storage
+            .from('sarai')
+            .upload(filePath, thumbnail, {
+            cacheControl: '3600',
+            upsert: true
+            });
+
+        if (error) throw error;
+
+        results.push(result);
+    }
+};
+
+export const storageUpload = async (filePath, file) => {
+  const { data, error } = await supabase
+    .storage
+    .from('sarai')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  const { publicURL } = supabase
+    .storage
+    .from('sarai')
+    .getPublicUrl(filePath);
+
+  // Image is now available via this URL (almost instantly)
+
+  const publicUrl = `https://fcjqqpgmzxylmdrzqqym.supabase.co/storage/v1/object/public/sarai/${encodeURIComponent(filePath)}`;
+  return {
+    path: data.path,
+    publicUrl
+  };
+};
+
+export const fetchLessonsThumbnail = async ({lessons, setThumbnails}) => {
+  const fetched = [];
+
+  for (const { thumbnail, id } of lessons) {
+    if(thumbnail) {
+        const { data, error } = supabase
+        .storage
+        .from('sarai')
+        .getPublicUrl(thumbnail);
+
+        if (error) {
+            console.error('Error fetching public URL:', error);
+        } else {
+            fetched.push({id, url: data.publicUrl });
+        }
+    } else {
+        fetched.push({id, url: null });
+    }
+  }
+
+  setThumbnails(fetched);
+};
+
+export const fetchLessonThumbnail = async ({lessons, setThumbnails}) => {
+    // if(thumbnail) {
+    //     const { data, error } = supabase
+    //     .storage
+    //     .from('sarai')
+    //     .getPublicUrl(thumbnail);
+
+    //     if (error) {
+    //         console.error('Error fetching public URL:', error);
+    //     } else {
+    //         fetched.push({id, url: data.publicUrl });
+    //     }
+    // } else {
+    //     fetched.push({id, url: null });
+    // }
+
+//   setThumbnails(fetched);
+};
+
+
+export const fetchProofImage = (props) => {
+    if (props.selectedCol && props.selectedCol.payment) {
+        const filePath = `${props.selectedCol.payment}`; 
+        const { data, error } = props.supabase
+            .storage
+            .from(props.bucket)
+            .getPublicUrl(filePath);
+
+        if (error) {
+            console.error('Error fetching public URL:', error);
+        } else {
+            props.setProof(data.publicUrl);
+        }
+    } else {
+        props.setProof(null);
+    }
+}

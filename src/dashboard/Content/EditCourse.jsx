@@ -1,12 +1,22 @@
 import React, {useState, useEffect} from "react"
-import { updateLessons, updateLesson, getCourseById, getLessonsbyCourse, deleteCourse, deleteLessons, createLessons } from "../../supabaseService"
+import { 
+    updateLessons, 
+    updateLesson, 
+    getCourseById, 
+    getLessonsbyCourse, 
+    deleteCourse, 
+    deleteLessons, 
+    createLessons, 
+    storageUpload,
+    fetchLessonsThumbnail } from "../../supabaseService"
 import EditLessonFields from "./EditLessonFields"
 
 const EditCourse = ({course, handleBack, triggerSave}) => {
   const [lessons, setLessons] = useState([])
   const [selectedCourse, setSelectedCourse] = useState([])
   const [toDeleteLesson, setTodeleteLesson] = useState([])
-  const [toAddLesson, setToaddLesson] = useState([])
+  const [lessonThumbnail, setlessonThumbnail] = useState([])
+  const [ fetchedLessonsThumbnail, setfetchedLessonsThumbnail] = useState([])
   
 
   useEffect(() => {
@@ -19,23 +29,119 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
 
   }, [])
 
+  useEffect(() => {
+    if(lessons && lessons.length > 0) {
+      fetchLessonsThumbnail(
+        {
+          lessons: lessons,
+          setThumbnails: (data) => setfetchedLessonsThumbnail(data),
+        }
+      )
+    }
+  }, [lessons])
 
-  //this is to update simply what in the input
-  const handleChange = (e, id) => {
+  // useEffect(() => {
+  //   if (fetchedLessonsThumbnail && fetchedLessonsThumbnail.length > 0) {
+  //     const merged = lessons.map((item, index) => {
+  //       const existingUrl = item.url;
+  //       const newUrl = fetchedLessonsThumbnail[index]?.url || null;
 
-   const newState = lessons.map(item => {
-      if (item.id === id) {
-        return { ...item, [e.target.name]: e.target.value  };
-      }
-      return item;
-    });
+  //       return {
+  //         ...item,
+  //         url: existingUrl || newUrl
+  //       };
+  //     });
+
+  //     // Check if there’s actually a change before setting
+  //     const isDifferent = merged.some((item, index) => item.url !== lessons[index].url);
+
+  //     if (isDifferent) {
+  //       setLessons(merged);
+  //     }
+  //   }
+  // }, [fetchedLessonsThumbnail]);
+
+
+  //this is to update simply what is in the input
+  const handleChange = async (e, id, course) => {
+
+    let newState;
+
+    // If it's a file upload
+    if (e.target.name === "thumbnail" && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      // Wait for the upload to finish first
+      const matchingItem = lessons.find(item => item.id === id);
+      const fileName = `course_${matchingItem.course_id}_id_${matchingItem.id}_${file.name.replace(/\s+/g, "_")}`;
+      
+      const res = await storageUpload(fileName, file); // Wait for upload to finish
+      const publicUrl = res.publicUrl;
+
+      // Then build new state
+      newState = lessons.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [e.target.name]: publicUrl, // Assign the returned URL
+          };
+        }
+        return item;
+      });
+
+    } else {
+      // Handle normal text input changes
+      newState = lessons.map(item => {
+        if (item.id === id) {
+          return { ...item, [e.target.name]: e.target.value };
+        }
+        return item;
+      });
+    }
 
     setLessons(newState);
+
+
+    let newLessonThumbnail;
+
+    const existingIndex = lessonThumbnail.findIndex(item => item.id === id);
+
+    if (existingIndex !== -1) {
+      // Replace the specific item at the found index
+      newLessonThumbnail = [
+        ...lessonThumbnail.slice(0, existingIndex),
+        { 
+          id,
+          thumbnail: e.target.files[0],
+          filePath: `course:${course}_id:${id}${e.target.files[0].name.replace(/\s+/g, "_")}`
+        },
+        ...lessonThumbnail.slice(existingIndex + 1)
+      ];
+    } else {
+      // Add new item
+      newLessonThumbnail = [
+        ...lessonThumbnail,
+        { 
+          id,
+          thumbnail: e.target.files[0],
+          filePath: `course:${course}_id:${id}${e.target.files[0].name.replace(/\s+/g, "_")}`
+        }
+      ];
+    }
+
+    setlessonThumbnail(newLessonThumbnail)
   }
+
+  const handleUploadClick = (trigger) => {    
+    trigger.current.click()
+  };
 
 
   const handleSubmit = () => {
 
+    // if(lessonThumbnail.length > 0) {
+    //   storageUpload(lessonThumbnail)
+    // }
     //find if there are empty fields then map items to put an error tiem and value which is true if there are tiems found
     const emptyFields = lessons
       .filter(item => (item.title === "" || item.description === ""))
@@ -54,9 +160,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       
       setLessons( merged);
     } else {
-      // if(toDeleteLesson) {
-      //   deleteLesson(toDeleteLesson)
-      // }
       const filterNewLessons = lessons.filter((item) => item.newItem )
       const filterLessons = lessons.filter((item) => !item.newItem )
       
@@ -65,6 +168,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
         description: i.description,
         order: i.order,
         course_id: i.course_id,
+        thumbnail: i.thumbnail
       }))
 
       const fitleredLessons = filterLessons.map(i => ({
@@ -73,6 +177,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
         description: i.description,
         order: i.order,
         course_id: i.course_id,
+        thumbnail: i.thumbnail
       }))
       
       if(toDeleteLesson) {
@@ -149,6 +254,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
     setLessons(newState);
 };
 
+console.log("lessonThumbnail", lessonThumbnail)
 console.log("lessons", lessons)
 
   return (
@@ -215,8 +321,10 @@ console.log("lessons", lessons)
                 <div className="w-[100%]">
                   <EditLessonFields
                     data={i}
-                    handleChange={(e, data) => handleChange(e, data)}
+                    handleChange={(e, dataID, courseID) => handleChange(e, dataID, courseID)}
                     handleDeleteLesson={() => handleDeleteLesson(i.id, i.order, i.course_id, ndx)}
+                    handleLessonThumbnail={() => handleLessonThumbnail()}
+                    handleUploadClick={(trigger) => handleUploadClick(trigger)}
                   />
                   <div className="w-[100%] mt-[5px]">
                     <button onClick={() => handleAddLesson(i.id, i.order, i.course_id, ndx)} className="w-max px-[20px] py-[5px] bg-[#e2e2e2] hover:bg-[#d8fbe3] rounded-sm">Add Lesson</button>
