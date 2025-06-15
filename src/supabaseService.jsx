@@ -25,6 +25,15 @@ export const createLessons = async (data) => {
     return results;
 };
 
+export const createUser = async (data) => {
+    const { data: result, error } = await supabase
+        .from('users')
+        .insert([data])
+        .select();
+    if (error) throw error
+    return result
+}
+
 // Read
 export const getUsers = async () => {
     const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
@@ -42,6 +51,39 @@ export const getUserById = async (id) => {
     return data
 }
 
+export const getUserByEmail = async (email) => {
+    const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .order('created_at', { ascending: false });
+    if (error) throw error
+    return data
+}
+
+export const getUserByEmailAndPassword = async (email, password) => {
+    const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .eq('password', password)
+    .order('created_at', { ascending: false });
+    if (error) throw error
+    return data
+}
+
+export const getUserByEmailAndPasswordAndAssessment = async (email, password) => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .eq('password', password)
+    .is('assessment_result', 'is', null)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
 
 export const getCourses = async () => {
     const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
@@ -81,7 +123,29 @@ export const getTimeins = async () => {
     return data;
 };
 
+export const getPreAssessment = async () => {
+    const { data, error } = await supabase
+        .from('pre_assessment')
+        .select('*')
+        .order('order', { ascending: true });
+
+    if (error) throw error;
+    return data;
+};
+
 // Update
+export const updateCourse = async (data) => {
+
+  const updateData = data[0]; // separate ID from update fields
+
+  const { data: result, error } = await supabase
+    .from('courses')
+    .update(updateData)
+    .eq('id', updateData.id)
+    .select()
+    if (error) throw error
+    return result
+}
 
 export const updateLesson = async (data) => {
 
@@ -109,6 +173,24 @@ export const updateLessons = async (dataArray) => {
     if (error) throw error;
     results.push(result[0]); // result is an array
   }
+  return results;
+};
+
+export const updatePreAssessment = async (dataArray) => {
+  const results = [];
+  for (const data of dataArray) {
+    const { id, ...fieldsToUpdate } = data;
+    const { data: result, error } = await supabase
+        .from('pre_assessment')
+        .update(fieldsToUpdate)
+        .eq('id', id)
+        .select()
+        .order('order', { ascending: true });
+    if (error) throw error;
+    results.push(result[0]); // result is an array
+  }
+
+  console.log("resultsssssssssssssss", results)
   return results;
 };
 
@@ -199,6 +281,7 @@ export const storageUpload = async (filePath, file) => {
   // Image is now available via this URL (almost instantly)
 
   const publicUrl = `https://fcjqqpgmzxylmdrzqqym.supabase.co/storage/v1/object/public/sarai/${encodeURIComponent(filePath)}`;
+  
   return {
     path: data.path,
     publicUrl
@@ -229,22 +312,22 @@ export const fetchLessonsThumbnail = async ({lessons, setThumbnails}) => {
 };
 
 export const fetchLessonThumbnail = async ({lessons, setThumbnails}) => {
-    // if(thumbnail) {
-    //     const { data, error } = supabase
-    //     .storage
-    //     .from('sarai')
-    //     .getPublicUrl(thumbnail);
+    if(thumbnail) {
+        const { data, error } = supabase
+        .storage
+        .from('sarai')
+        .getPublicUrl(thumbnail);
 
-    //     if (error) {
-    //         console.error('Error fetching public URL:', error);
-    //     } else {
-    //         fetched.push({id, url: data.publicUrl });
-    //     }
-    // } else {
-    //     fetched.push({id, url: null });
-    // }
+        if (error) {
+            console.error('Error fetching public URL:', error);
+        } else {
+            fetched.push({id, url: data.publicUrl });
+        }
+    } else {
+        fetched.push({id, url: null });
+    }
 
-//   setThumbnails(fetched);
+  setThumbnails(fetched);
 };
 
 

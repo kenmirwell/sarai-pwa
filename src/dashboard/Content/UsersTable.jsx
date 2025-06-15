@@ -2,18 +2,15 @@ import React, { useState, useEffect } from "react"
 import DataTable from 'react-data-table-component';
 import { columns } from './columns';
 import { getUsers} from '../../supabaseService';
+import EditUsers from "./EditUsers";
 
-const UsersTable = ({}) => {
+const UsersTable = ({triggerSave}) => {
 	const [tableData, setTableData] = useState([])
 	const [selected, setSelected] = useState(null)
 
 	useEffect(() => {
 			getUsers().then(res => setTableData(res))
 	}, [])
-
-	const handleSelected = () => {
-		
-	}
 
 	return (
 		<div className="bg-[#f9f9f9] pt-[30px]">
@@ -24,16 +21,22 @@ const UsersTable = ({}) => {
 				<div className={`w-[100%] h-[100vh]`}>
 					<div className="pt-[30px]">
 						<div className="shadow-md rounded-md overflow-hidden">
-							<DataTable
-								highlightOnHover
-								columns={columns()}
-								data={tableData}
-								striped //how to customized this
-								theme={null}
-								pagination
-								onRowClicked={row => setSelected(row.id)}
-								// 	conditionalRowStyles={conditionalRowStyles}
-							/>
+							{
+								!selected ?
+									<DataTable
+										highlightOnHover
+										columns={columns()}
+										data={tableData}
+										striped //how to customized this
+										theme={null}
+										pagination
+										onRowClicked={row => setSelected(row.id)}
+										// 	conditionalRowStyles={conditionalRowStyles}
+									/> :
+									<EditUsers
+										selectedUser={selected}
+									/>
+							}
 						</div>
 					</div>
 				</div>

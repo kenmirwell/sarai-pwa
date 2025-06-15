@@ -1,6 +1,35 @@
+import { useEffect, useState } from "react"
+import { getUserById, getUserByEmail, getUserByEmailAndPasswordAndAssessment } from "../supabaseService"
 import InitialAssessmentData from "../Config/InitialAssesmentData"
+import { useNavigate } from "react-router-dom"
 
-const InitialAssessment = () => {
+const InitialAssessment = ({}) => {
+  const navigate = useNavigate()
+  useEffect(() => {
+
+    const username = localStorage.getItem('loggedEmail');
+    const password = localStorage.getItem('loggedPassword');
+
+    console.log("username && password", username && password)
+    // getUserByEmail()
+    // console.log("userLogin", userLogin)
+    if(username && password) {
+         getUserByEmailAndPasswordAndAssessment(username, password).then((res) => {
+          // setFetchedUser(res)
+
+          if(!res.length > 0) {
+            navigate('/404');
+          }
+        })
+    } else {
+      navigate('/404');
+    }
+  }, [])
+
+  // useEffect(() => {
+  //   if(fetchedUser.len)
+  // }, [fetchedUser])
+
   return (
     <div>
       <div className="w-[100%] bg-[#606060]">

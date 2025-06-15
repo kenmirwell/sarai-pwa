@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar/Sidebar"
 import UsersTable from "./Content/UsersTable"
 import CoursesTable from "./Content/CoursesTable"
+import PreAssessment from "./Content/PreAssessment"
 import Spinner from "./Content/Spinner"
 import { useState } from "react"
 
@@ -27,8 +28,12 @@ const MainDashboard = ({adminRoute}) => {
           {
             adminRoute === "users" ?
               <UsersTable/> :
-            adminRoute === "courses" &&
+            adminRoute === "courses" ?
               <CoursesTable
+                triggerSave={() => (triggerSave())}
+              /> :
+            adminRoute === "pre-assessment" &&
+              <PreAssessment
                 triggerSave={() => (triggerSave())}
               />
           }

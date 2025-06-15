@@ -1,17 +1,17 @@
-import React, {useState, useEffect} from "react"
+import React, {useState, useEffect, useRef} from "react"
 import { 
     updateLessons, 
-    updateLesson, 
     getCourseById, 
     getLessonsbyCourse, 
     deleteCourse, 
     deleteLessons, 
     createLessons, 
     storageUpload,
-    fetchLessonsThumbnail } from "../../supabaseService"
+    updateCourse } from "../../supabaseService"
 import EditLessonFields from "./EditLessonFields"
 
 const EditCourse = ({course, handleBack, triggerSave}) => {
+  const fileInputRef = useRef(null);
   const [lessons, setLessons] = useState([])
   const [selectedCourse, setSelectedCourse] = useState([])
   const [toDeleteLesson, setTodeleteLesson] = useState([])
@@ -29,38 +29,46 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
 
   }, [])
 
-  useEffect(() => {
-    if(lessons && lessons.length > 0) {
-      fetchLessonsThumbnail(
-        {
-          lessons: lessons,
-          setThumbnails: (data) => setfetchedLessonsThumbnail(data),
+
+  const handleCourseChange = async (e, id) => {
+    let newState;
+    
+    if (e.target.name === "thumbnail" && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      // Wait for the upload to finish first
+      const matchingItem = selectedCourse.find(item => item.id === id);
+      const fileName = `course_${matchingItem.course_id}_id_${matchingItem.id}_${file.name.replace(/\s+/g, "_")}`;
+      
+      const res = await storageUpload(fileName, file); // Wait for upload to finish
+      const publicUrl = res.publicUrl;
+
+      console.log(publicUrl)
+
+      // Then build new state
+      newState = selectedCourse.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [e.target.name]: publicUrl, // Assign the returned URL
+          };
         }
-      )
+        return item;
+      });
+    } else {
+      newState = selectedCourse.map(item => {
+        if (item.id === id) {
+          return { ...item, [e.target.name]: e.target.value };
+        }
+        return item;
+      });
     }
-  }, [lessons])
 
-  // useEffect(() => {
-  //   if (fetchedLessonsThumbnail && fetchedLessonsThumbnail.length > 0) {
-  //     const merged = lessons.map((item, index) => {
-  //       const existingUrl = item.url;
-  //       const newUrl = fetchedLessonsThumbnail[index]?.url || null;
+    setSelectedCourse(newState)
+  };
 
-  //       return {
-  //         ...item,
-  //         url: existingUrl || newUrl
-  //       };
-  //     });
 
-  //     // Check if there’s actually a change before setting
-  //     const isDifferent = merged.some((item, index) => item.url !== lessons[index].url);
-
-  //     if (isDifferent) {
-  //       setLessons(merged);
-  //     }
-  //   }
-  // }, [fetchedLessonsThumbnail]);
-
+  console.log(selectedCourse)
 
   //this is to update simply what is in the input
   const handleChange = async (e, id, course) => {
@@ -77,6 +85,8 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       
       const res = await storageUpload(fileName, file); // Wait for upload to finish
       const publicUrl = res.publicUrl;
+
+      console.log(publicUrl)
 
       // Then build new state
       newState = lessons.map(item => {
@@ -100,36 +110,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
     }
 
     setLessons(newState);
-
-
-    let newLessonThumbnail;
-
-    const existingIndex = lessonThumbnail.findIndex(item => item.id === id);
-
-    if (existingIndex !== -1) {
-      // Replace the specific item at the found index
-      newLessonThumbnail = [
-        ...lessonThumbnail.slice(0, existingIndex),
-        { 
-          id,
-          thumbnail: e.target.files[0],
-          filePath: `course:${course}_id:${id}${e.target.files[0].name.replace(/\s+/g, "_")}`
-        },
-        ...lessonThumbnail.slice(existingIndex + 1)
-      ];
-    } else {
-      // Add new item
-      newLessonThumbnail = [
-        ...lessonThumbnail,
-        { 
-          id,
-          thumbnail: e.target.files[0],
-          filePath: `course:${course}_id:${id}${e.target.files[0].name.replace(/\s+/g, "_")}`
-        }
-      ];
-    }
-
-    setlessonThumbnail(newLessonThumbnail)
   }
 
   const handleUploadClick = (trigger) => {    
@@ -139,9 +119,8 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
 
   const handleSubmit = () => {
 
-    // if(lessonThumbnail.length > 0) {
-    //   storageUpload(lessonThumbnail)
-    // }
+    updateCourse(selectedCourse)
+
     //find if there are empty fields then map items to put an error tiem and value which is true if there are tiems found
     const emptyFields = lessons
       .filter(item => (item.title === "" || item.description === ""))
@@ -159,6 +138,7 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       });
       
       setLessons( merged);
+
     } else {
       const filterNewLessons = lessons.filter((item) => item.newItem )
       const filterLessons = lessons.filter((item) => !item.newItem )
@@ -234,7 +214,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
 
     const newLesson = {
       id: generateID(),
-      // created_at: new Date(),
       title: "",
       description: "",
       order: order + 1,
@@ -254,8 +233,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
     setLessons(newState);
 };
 
-console.log("lessonThumbnail", lessonThumbnail)
-console.log("lessons", lessons)
 
   return (
     <div className="py-[40px] px-[50px]">
@@ -279,35 +256,47 @@ console.log("lessons", lessons)
               </div>
             </div>
           </div>
-          <div className="flex justify-between items-start gap-[50px] rounded-lg">
-            <div className="w-[100%]">
-              {
-                selectedCourse.map((i, ndx) => {
-                  return (
-                  <div key={"sel-course"+ndx}>
+          <div className="w-[100%] rounded-lg">
+            {
+              selectedCourse.map((i, ndx) => {
+                return (
+                <div className="flex gap-[20px]" key={"sel-course"+ndx}>
+                    <div className="w-[100%]">
                       <div className="flex flex-col gap-[10px]">
                         <div className="flex flex-col">
                           <p className="text-[12px] text-[#696969]">Course Title</p>
-                          <input onChange={e => handleChange(e)} className="text-[16px] bg-[#e2e2e2] text-[#6a6a6a] rounded-md w-[100%] p-[10px]" type="text" value={i.title} />
+                          <input name="title" onChange={e => handleCourseChange(e, i.id)} className="text-[16px] bg-[#e2e2e2] text-[#6a6a6a] rounded-md w-[100%] p-[10px]" type="text" value={i.title} />
                         </div>
                         <div className="flex flex-col">
                           <p className="text-[12px] text-[#696969]">Course Description</p>
-                          <input onChange={e => handleChange(e)} className="text-[16px] bg-[#e2e2e2] text-[#6a6a6a] rounded-md w-[100%] p-[10px]" type="text" value={i.description} />
+                          <input name="description" onChange={e => handleCourseChange(e, i.id)} className="text-[16px] bg-[#e2e2e2] text-[#6a6a6a] rounded-md w-[100%] p-[10px]" type="text" value={i.description} />
                         </div>
                       </div>
-                  </div>
-                  )
-                })
-              }
-            </div>
-            <div>
-              <div>
-                <p className="text-[12px] text-[#696969]">Thumbnail</p>
-                <div className="w-[200px] h-[150px] bg-[#e2e2e2] rounded-lg">
-                  {/* <img className="w-[100%]" src="" alt="" /> */}
+                    </div>
+                    <div className="">
+                      <p className="text-[12px] text-[#696969]">Thumbnail</p>
+                      <div
+                          id="upload-area"
+                          className="flex w-[100px] h-[100px] bg-[#e2e2e2] rounded-lg"
+                          onClick={() => handleUploadClick(fileInputRef)}
+                      >
+                          <img className="w-[100%]" src={i.thumbnail ? i.thumbnail : "#"} alt="" />
+                      </div>
+
+                      {/* Hidden input field */}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        name="thumbnail"
+                        onChange={e => handleCourseChange(e, i.id)}
+                        className="hidden"
+                        accept="image/*"
+                      />
+                    </div>
                 </div>
-              </div>
-            </div>
+                )
+              })
+            }
           </div>
       </div>
       <div className="flex flex-col gap-[20px]">
@@ -323,7 +312,6 @@ console.log("lessons", lessons)
                     data={i}
                     handleChange={(e, dataID, courseID) => handleChange(e, dataID, courseID)}
                     handleDeleteLesson={() => handleDeleteLesson(i.id, i.order, i.course_id, ndx)}
-                    handleLessonThumbnail={() => handleLessonThumbnail()}
                     handleUploadClick={(trigger) => handleUploadClick(trigger)}
                   />
                   <div className="w-[100%] mt-[5px]">

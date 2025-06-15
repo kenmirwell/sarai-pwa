@@ -4,9 +4,7 @@ const EditLessonFields = ({
     data, 
     handleChange, 
     handleDeleteLesson, 
-    handleLessonThumbnail, 
     handleUploadClick,
-    // fileInputRef
 }) => {
   
   const fileInputRef = useRef(null);
@@ -39,12 +37,6 @@ const EditLessonFields = ({
           </div>
         </div>
         <div className="flex flex-col justify-between">
-          {/* <div onClick={e => handleChange(e, data.id)}>
-            <p className="text-[12px] text-[#696969]">Thumbnail</p>
-            <div className="w-[100px] h-[100px] bg-[#e2e2e2] rounded-lg">
-              <img className="w-[100%]" src="" alt="" />
-            </div>
-          </div> */}
 
           <div className="">
             <p className="text-[12px] text-[#696969]">Thumbnail</p>
@@ -53,7 +45,7 @@ const EditLessonFields = ({
                 className="flex w-[100px] h-[100px] bg-[#e2e2e2] rounded-lg"
                 onClick={() => handleUploadClick(fileInputRef)}
             >
-                <img className="w-[100%]" src={data.thumbnail} alt="" />
+                <img className="w-[100%]" src={data.thumbnail ? data.thumbnail : "#"} alt="" />
             </div>
 
             {/* Hidden input field */}

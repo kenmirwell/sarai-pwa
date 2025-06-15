@@ -17,6 +17,7 @@ const AdminHeader = ({setAdminRoute}) => {
             <ul className="flex items-center gap-[20px]">
               <li onClick={() => setAdminRoute("users")} className="text-[#ffffff] cursor-pointer">Users</li>
               <li onClick={() => setAdminRoute("courses")} className="text-[#ffffff] cursor-pointer">Courses</li>
+              <li onClick={() => setAdminRoute("pre-assessment")} className="text-[#ffffff] cursor-pointer">Pre Assessment</li>
             </ul>
             <div className="flex justify-center items-center w-[40px] h-[40px] rounded-full bg-[#00B238]">
               <span className="text-[#ffffff]">UR</span>
