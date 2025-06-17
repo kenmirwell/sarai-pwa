@@ -10,13 +10,13 @@ const InitialAssessment = ({}) => {
     const username = localStorage.getItem('loggedEmail');
     const password = localStorage.getItem('loggedPassword');
 
-    console.log("username && password", username && password)
+    console.log("username && password", username, password)
     // getUserByEmail()
     // console.log("userLogin", userLogin)
     if(username && password) {
          getUserByEmailAndPasswordAndAssessment(username, password).then((res) => {
           // setFetchedUser(res)
-
+          
           if(!res.length > 0) {
             navigate('/404');
           }

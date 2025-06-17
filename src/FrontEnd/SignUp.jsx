@@ -25,14 +25,6 @@ const SignUp = ({setUserLogin}) => {
       ...prev,
       [e.target.name]: e.target.value
     }));
-
-    // setUserDetails(prev => ({
-    //   ...prev,
-    //   errors: {
-    //     ...prev.errors,
-    //     [e.target.name]: 'This field is required'
-    //   }
-    // }));
   }
   
   
@@ -59,16 +51,15 @@ const SignUp = ({setUserLogin}) => {
     })
 
     const { errors, ...newUser } = userDetails;
-    // createUser(newUser).then(res => {
-    //   if(res.length > 0) {
-    //     localStorage.setItem('loggedEmail', res[0].email);
-    //     localStorage.setItem('loggedPassword', res[0].password)
-    //     setCreatedUser(res)
-    //   }
-    // })
-  }
 
-  console.log("userDetails", userDetails.errors)
+    createUser(newUser).then(res => {
+      if(res.length > 0) {
+        localStorage.setItem('loggedEmail', res[0].email);
+        localStorage.setItem('loggedPassword', res[0].password)
+        setCreatedUser(res)
+      }
+    })
+  }
 
   return (
     <div className="flex w-[100%] h-[100vh] justify-center items-center">

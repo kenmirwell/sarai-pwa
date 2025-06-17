@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AllCourses from "./AllCourses"
 import Header from "../GlobalComponents/Header"
 import MyLearning from "./MyLearning";
@@ -6,7 +6,8 @@ import SignUp from "./SignUp";
 import Login from "./Login";
 import InitialAssessment from "./InitialAssesment";
 import BadGateway from "./BadGateway";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, Link } from "react-router-dom";
+
 
 const FrontEnd = () => {
     const location = useLocation()

@@ -51,6 +51,7 @@ export const getUserById = async (id) => {
     return data
 }
 
+
 export const getUserByEmail = async (email) => {
     const { data, error } = await supabase
     .from('users')
@@ -61,12 +62,12 @@ export const getUserByEmail = async (email) => {
     return data
 }
 
-export const getUserByEmailAndPassword = async (email, password) => {
+export const getUserByEmailAndPassword = async (loggedDetails) => {
     const { data, error } = await supabase
     .from('users')
     .select('*')
-    .eq('email', email)
-    .eq('password', password)
+    .eq('email', loggedDetails.email)
+    .eq('password', loggedDetails.password)
     .order('created_at', { ascending: false });
     if (error) throw error
     return data
@@ -78,7 +79,7 @@ export const getUserByEmailAndPasswordAndAssessment = async (email, password) =>
     .select('*')
     .eq('email', email)
     .eq('password', password)
-    .is('assessment_result', 'is', null)
+    .is('assessment_result', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
