@@ -28,8 +28,6 @@ const EditPreAssessmentFields = ({data, onChangeChoices, onChangeQuestion}) => {
       })
     }
   }
-
-  console.log("selectedAnswer", selectedAnswer)
   
   return (
     <div className={`p-[20px] ${/*${data ? "bg-red-100" : "bg-[#f1f1f1]"}*/""} hover:bg-[#d8fbe3]`}>

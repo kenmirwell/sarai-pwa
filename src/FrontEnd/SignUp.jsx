@@ -16,7 +16,7 @@ const SignUp = ({setUserLogin}) => {
 
   useEffect(() => {
     if(createdUser.length > 0) {
-      navigate('/initial-assessment')
+      navigate('/initial-assessment');
     }
   }, [createdUser])
 
@@ -30,7 +30,6 @@ const SignUp = ({setUserLogin}) => {
   
   const handleSubmit = () => {
     Object.keys(userDetails).map(item => {
-      console.log(userDetails[item])
       if(!userDetails[item]){
         setUserDetails(prev => ({
           ...prev,

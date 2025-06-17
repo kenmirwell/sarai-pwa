@@ -43,8 +43,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       const res = await storageUpload(fileName, file); // Wait for upload to finish
       const publicUrl = res.publicUrl;
 
-      console.log(publicUrl)
-
       // Then build new state
       newState = selectedCourse.map(item => {
         if (item.id === id) {
@@ -67,9 +65,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
     setSelectedCourse(newState)
   };
 
-
-  console.log(selectedCourse)
-
   //this is to update simply what is in the input
   const handleChange = async (e, id, course) => {
 
@@ -85,8 +80,6 @@ const EditCourse = ({course, handleBack, triggerSave}) => {
       
       const res = await storageUpload(fileName, file); // Wait for upload to finish
       const publicUrl = res.publicUrl;
-
-      console.log(publicUrl)
 
       // Then build new state
       newState = lessons.map(item => {

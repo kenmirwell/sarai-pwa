@@ -10,8 +10,6 @@ export const createItem = async (data) => {
 
 export const createLessons = async (data) => {
 
-    console.log("tocreatedata", data)
-
     const results = [];
 
     for (const item of data) {
@@ -33,6 +31,37 @@ export const createUser = async (data) => {
     if (error) throw error
     return result
 }
+
+export const createPreAssessmentAns = async (submission) => {
+  const { data: existing, error: fetchError } = await supabase
+    .from('users_pre_assessment_answers')
+    .select('*')
+    .eq('user_id', submission.user_id);
+
+  if (fetchError) throw fetchError;
+
+  if (!existing || existing.length === 0) {
+    // Insert if not existing
+    const { data, error } = await supabase
+      .from('users_pre_assessment_answers')
+      .insert([submission])
+      .select();
+
+    if (error) throw error;
+    return data;
+  } else {
+    // Update if already exists
+    const { data, error } = await supabase
+      .from('users_pre_assessment_answers')
+      .update({ question_and_answer: submission.question_and_answer }) // only update the answers
+      .eq('user_id', submission.user_id)
+      .select();
+
+    if (error) throw error;
+    return data;
+  }
+};
+
 
 // Read
 export const getUsers = async () => {
@@ -134,6 +163,16 @@ export const getPreAssessment = async () => {
     return data;
 };
 
+export const getPreAssessmentResult = async (user) => {
+    const { data, error } = await supabase
+        .from('users_pre_assessment_answers')
+        .select('*')
+        .eq('user_id', user.id)
+
+    if (error) throw error;
+    return data;
+};
+
 // Update
 export const updateCourse = async (data) => {
 
@@ -190,8 +229,6 @@ export const updatePreAssessment = async (dataArray) => {
     if (error) throw error;
     results.push(result[0]); // result is an array
   }
-
-  console.log("resultsssssssssssssss", results)
   return results;
 };
 
@@ -221,14 +258,12 @@ export const deleteItem = async (email) => {
 }
 
 export const deleteCourse = async (data) => {
-    console.log("to delete data", data)
     const { data: result, error } = await supabase.from('courses').delete().eq('email_address', email)
     if (error) throw error
     return result
 }
 
 export const deleteLesson = async (data) => {
-    console.log("to delete data", data)
     const { data: result, error } = await supabase.from('lessons').delete().eq('id', email)
     if (error) throw error
     return result

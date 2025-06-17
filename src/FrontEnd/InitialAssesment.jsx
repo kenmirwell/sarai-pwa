@@ -1,34 +1,100 @@
 import { useEffect, useState } from "react"
-import { getUserById, getUserByEmail, getUserByEmailAndPasswordAndAssessment } from "../supabaseService"
+import { createPreAssessmentAns, getUserByEmailAndPasswordAndAssessment, getPreAssessment, getPreAssessmentResult } from "../supabaseService"
 import InitialAssessmentData from "../Config/InitialAssesmentData"
 import { useNavigate } from "react-router-dom"
 
 const InitialAssessment = ({}) => {
   const navigate = useNavigate()
+  const [loggedUser, setLoggeduser] = useState(null)
+  const [assessment, setAssessment] = useState([])
+  const [answers, setAnswers] = useState([])
+
   useEffect(() => {
+    const fetchData = async () => {
+      const username = localStorage.getItem('loggedEmail');
+      const password = localStorage.getItem('loggedPassword');
 
-    const username = localStorage.getItem('loggedEmail');
-    const password = localStorage.getItem('loggedPassword');
+      if (!username || !password) {
+        navigate('/404');
+        return;
+      }
 
-    console.log("username && password", username, password)
-    // getUserByEmail()
-    // console.log("userLogin", userLogin)
-    if(username && password) {
-         getUserByEmailAndPasswordAndAssessment(username, password).then((res) => {
-          // setFetchedUser(res)
-          
-          if(!res.length > 0) {
-            navigate('/404');
-          }
-        })
-    } else {
-      navigate('/404');
+      try {
+        const userResult = await getUserByEmailAndPasswordAndAssessment(username, password);
+
+        if (!userResult || userResult.length === 0) {
+          navigate('/404');
+          return;
+        }
+
+        const user = userResult[0];
+        setLoggeduser(user);
+
+        const existingResult = await getPreAssessmentResult(user);
+
+        if (existingResult) {
+          navigate('/404'); // 🔁 Replace this with your actual destination
+        } else {
+          const assessmentData = await getPreAssessment();
+          setAssessment(assessmentData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        navigate('/404');
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+  console.log("loggedUser", loggedUser)
+
+ const handleChange = (e, question_id, choiceIndex) => {
+    setAnswers(prevAnswers => {
+      const existingIndex = prevAnswers.findIndex(a => a.question_id === question_id);
+      if (existingIndex !== -1) {
+        const updated = [...prevAnswers];
+        updated[existingIndex].answer = choiceIndex;
+        return updated;
+      } else {
+        return [...prevAnswers, { question_id, answer: choiceIndex }];
+      }
+    });
+  };
+
+
+  const handleSubmit = async (e) => {
+     e.preventDefault();
+
+    const validateAnswers = () => {
+      return assessment.every(q => 
+        answers.find(a => a.question_id === q.id && a.answer !== "")
+      );
+    };
+
+    if (!validateAnswers()) {
+      alert("Please answer all the questions.");
+      return;
     }
-  }, [])
 
-  // useEffect(() => {
-  //   if(fetchedUser.len)
-  // }, [fetchedUser])
+    const submission = {
+      user_id: loggedUser.id,
+      question_and_answer: answers
+    };
+
+    try {
+      await createPreAssessmentAns(submission);
+      alert("Assessment submitted!");
+      // navigate("/my-learning")
+
+    } catch (err) {
+      console.error("Submission failed:", err.message);
+    }
+
+  }
+
+  console.log('answer', answers)
 
   return (
     <div>
@@ -41,31 +107,23 @@ const InitialAssessment = ({}) => {
       <div className="w-[100%] py-[50px]">
         <form type="submit" className="max-w-[1200px] px-[50px] mx-auto">
           {
-            InitialAssessmentData.map((i, index) => (
+            assessment.map((i, index) => (
               <div className="pb-[30px]">
-                <h6 className="text-[24px]">{index + 1}. {i.question}</h6>
-                <div>
-                  <div className="flex gap-[10px]">
-                    <input type="checkbox" required/>
-                    <p className="text-[18px]">{i.choices.a}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <input type="checkbox" required/>
-                    <p className="text-[18px]">{i.choices.b}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <input type="checkbox" required/>
-                    <p className="text-[18px]">{i.choices.c}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <input type="checkbox" required/>
-                    <p className="text-[18px]">{i.choices.d}</p>
-                  </div>
+                <h6 className="text-[18px]">{index + 1}. {i.question}</h6>
+                <div className="pt-[10px] pl-[20px] flex flex-col gap-[10px]">
+                  {
+                    i.choices.choices.map((choice, index) => (
+                      <div className="flex gap-[10px] items-center">
+                        <input onChange={e => handleChange(e, i.id, index)} name={i.id} className="w-[20px] h-[20px]" type="radio" required/>
+                        <p className="text-[14px]">{choice}</p>
+                      </div>
+                    ))
+                  }
                 </div>
               </div>
             ))
           }
-          <button className="px-[50px] py-[10px] border-[1px] bg-[#191919] text-[#ffffff] rounded-[5px] mt-[10px]" type="submit">Submit</button>
+          <button onClick={handleSubmit} className="px-[50px] py-[10px] border-[1px] bg-[#191919] text-[#ffffff] rounded-[5px] mt-[10px]" type="submit">Submit</button>
         </form>
       </div>
     </div>

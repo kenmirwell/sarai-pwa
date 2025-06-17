@@ -22,7 +22,6 @@ const PreAssessment = () => {
   }, [])
 
   const handleChoices = (id, ans) => {
-    console.log(id, ans)
     // setAssessment(res)
     setAssessment(
       assessment.map(item => ({
@@ -37,7 +36,6 @@ const PreAssessment = () => {
   }
 
   const handleQuestions = (e) => {
-    console.log('e', e.id)
     setAssessment(
       assessment.map(item => ({
         id: item.id,
@@ -51,8 +49,7 @@ const PreAssessment = () => {
   const handleSubmit= () => {
     updatePreAssessment(assessment).then(res => console.log("response", res))
   }
-  
-  console.log("assessment", assessment)
+
 
   return (
     <div className="py-[40px] px-[50px]">

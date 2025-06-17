@@ -17,7 +17,7 @@ const Login = () => {
     }))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     Object.keys(loginDetails).map(item => {
       if(!loginDetails[item]){
         setLoginDetails(prev => ({
@@ -39,14 +39,25 @@ const Login = () => {
     })
 
     const { errors, ...newUser } = loginDetails;
+    try {
+      const result = await getUserByEmailAndPassword(newUser)
+      
+      if(result.length > 0) {
+        localStorage.setItem('loggedEmail', result[0].email);
+        localStorage.setItem('loggedPassword', result[0].password)
 
-    getUserByEmailAndPassword(newUser).then(res => {
-      if(res.length > 0) {
-        localStorage.setItem('loggedEmail', res[0].email);
-        localStorage.setItem('loggedPassword', res[0].password)
-        navigate('/initial-assessment')
+        if(result[0].assessment_result){
+          navigate('/my-learning')
+        } else {
+          navigate('/initial-assessment')
+        }
+        
       }
-    })
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      navigate('/404');
+    }
   }
 
   return (
