@@ -102,7 +102,7 @@ export const getUserByEmailAndPassword = async (loggedDetails) => {
     return data
 }
 
-export const getUserByEmailAndPasswordAndAssessment = async (email, password) => {
+export const getUserIfNoAssessment = async (email, password) => {
   const { data, error } = await supabase
     .from('users')
     .select('*')

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { createPreAssessmentAns, getUserByEmailAndPasswordAndAssessment, getPreAssessment, getPreAssessmentResult } from "../supabaseService"
+import { createPreAssessmentAns, getUserIfNoAssessment, getPreAssessment, getPreAssessmentResult } from "../supabaseService"
 import InitialAssessmentData from "../Config/InitialAssesmentData"
 import { useNavigate } from "react-router-dom"
 
@@ -14,33 +14,49 @@ const InitialAssessment = ({}) => {
       const username = localStorage.getItem('loggedEmail');
       const password = localStorage.getItem('loggedPassword');
 
+      //see if a user is logged in
       if (!username || !password) {
         navigate('/404');
+
+        console.log("404-1")
         return;
       }
 
       try {
-        const userResult = await getUserByEmailAndPasswordAndAssessment(username, password);
+        //see if the logged user already has assessment
+        const userResult = await getUserIfNoAssessment(username, password);
 
         if (!userResult || userResult.length === 0) {
           navigate('/404');
+          console.log("404-2")
           return;
-        }
-
-        const user = userResult[0];
-        setLoggeduser(user);
-
-        const existingResult = await getPreAssessmentResult(user);
-
-        if (existingResult) {
-          navigate('/404'); // 🔁 Replace this with your actual destination
         } else {
           const assessmentData = await getPreAssessment();
+          assessmentData.map(i => {
+            i.choices.map(j => {
+              console.log("j", j.choice)
+            })
+          })
           setAssessment(assessmentData);
         }
+
+        // const user = userResult[0];
+
+        // setLoggeduser(user);
+
+        // const existingResult = await getPreAssessmentResult(user);
+
+        // if (existingResult) {
+        //   navigate('/404'); // 🔁 Replace this with your actual destination
+        //   console.log("404-3")
+        // } else {
+        //   const assessmentData = await getPreAssessment();
+        //   setAssessment(assessmentData);
+        // }
       } catch (error) {
         console.error('Error fetching data:', error);
         navigate('/404');
+        console.log("404-4")
       }
     };
 
@@ -107,15 +123,15 @@ const InitialAssessment = ({}) => {
       <div className="w-[100%] py-[50px]">
         <form type="submit" className="max-w-[1200px] px-[50px] mx-auto">
           {
-            assessment.map((i, index) => (
+            assessment.length > 0 && assessment.map((i, index) => (
               <div className="pb-[30px]">
                 <h6 className="text-[18px]">{index + 1}. {i.question}</h6>
                 <div className="pt-[10px] pl-[20px] flex flex-col gap-[10px]">
                   {
-                    i.choices.choices.map((choice, index) => (
+                    i.choices.map((item, index) => (
                       <div className="flex gap-[10px] items-center">
                         <input onChange={e => handleChange(e, i.id, index)} name={i.id} className="w-[20px] h-[20px]" type="radio" required/>
-                        <p className="text-[14px]">{choice}</p>
+                        <p className="text-[14px]">{item.choice}</p>
                       </div>
                     ))
                   }
